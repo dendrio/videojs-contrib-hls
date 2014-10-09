@@ -31,7 +31,12 @@
       url = options.url;
     }
 
-    request = new window.XMLHttpRequest();
+    //if(false) {
+    if (options.responseType === 'arraybuffer' || options.responseType === 'blob') {
+      request = new window.DendrioHttpRequest();
+    } else {
+      request = new window.XMLHttpRequest();
+    }
     request.open(options.method, url);
     request.url = url;
     request.requestTime = new Date().getTime();
