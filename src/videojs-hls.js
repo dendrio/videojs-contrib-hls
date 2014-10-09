@@ -297,11 +297,12 @@ videojs.Hls.prototype.cancelKeyXhr = function() {
 };
 
 videojs.Hls.prototype.cancelSegmentXhr = function() {
-  if (this.segmentXhr_) {
+  if (this.segmentXhrSemaphore) {
     // Prevent error handler from running.
     this.segmentXhr_.onreadystatechange = null;
     this.segmentXhr_.abort();
     this.segmentXhr_ = null;
+    this.segmentXhrSemaphore = false;
   }
 };
 
@@ -414,7 +415,7 @@ videojs.Hls.prototype.fillBuffer = function(offset) {
     segmentUri;
 
   // if there is a request already in flight, do nothing
-  if (this.segmentXhr_) {
+  if (this.segmentXhrSemaphore) {
     return;
   }
 
@@ -476,6 +477,7 @@ videojs.Hls.prototype.loadSegment = function(segmentUri, offset) {
     settings = player.options().hls || {};
 
   // request the next segment
+  this.segmentXhrSemaphore = true;
   this.segmentXhr_ = videojs.Hls.xhr({
     url: segmentUri,
     responseType: 'arraybuffer',
@@ -483,6 +485,7 @@ videojs.Hls.prototype.loadSegment = function(segmentUri, offset) {
   }, function(error, url) {
     // the segment request is no longer outstanding
     tech.segmentXhr_ = null;
+    tech.segmentXhrSemaphore = false;
 
     if (error) {
       // if a segment request times out, we may have better luck with another playlist
