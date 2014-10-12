@@ -254,7 +254,6 @@ module.exports = function(grunt) {
   // Default task.
   grunt.registerTask('default',
                      ['clean',
-                      'test',
                       'concat',
                       'uglify']);
 
